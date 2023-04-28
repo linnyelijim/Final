@@ -1,92 +1,166 @@
-const states = require('../model/States');
+const states = require('../model/states');
 const data = {
     states: require('../model/statesData.json'),
-    setStates: function (data) { this.states = data }
+    setData(data) { this.states = data }
 }
-
-const getAllStates = (req, res) => {
+async function buildFunFacts() {
+    for (const state in data.states) {
+        const findState = await states.findOne({ statecode: data.states[state].code }).exec();
+        if (findState) {
+            data.states[state].funfacts = findState.funfacts;
+        }
+    }
+}
+const getAllStates = async (req, res) => {
+    if (req.query.contig) {
+        const getAll = req.query.contig == 'false' ?
+            data.states.filter(state => state.code != "HI" || state.code != "AK") :
+            data.states.filter(state => state.code != "HI" && state.code != "AK");
+        res.json(getAll);
+        return;
+    }
     res.json(data.states);
 }
-
-/* const createFunFact = async (req, res) => {
-
-}
-const updateFunFact = aync(req, res) => {
-    const state = data.states.find(fact => fact.funfact === )
-}
-const deleteFunFact = aync(req, res) => {
-
-}
-const getState = aync(req, res) => {
-
-}
-const getCapital = aync(req, res) => {
-
-}
-const getNickname = aync(req, res) => {
-
-}
-const getPopulation = aync(req, res) => {
-
-}
-const getAdmission = aync(req, res) => {
-
-} */
-
-/* const createNewEmployee = (req, res) => {
-    const newEmployee = {
-        id: data.employees?.length ? data.employees[data.employees.length - 1].id + 1 : 1,
-        firstname: req.body.firstname,
-        lastname: req.body.lastname
+const getState = (req, res) => {
+    const stateCode = req.params.state.toUpperCase();
+    const findState = data.states.find(state => state.code == stateCode);
+    if (!findState) {
+        return res.status(404).json({ 'message': 'State code does not exist.' });
     }
- 
-    if (!newEmployee.firstname || !newEmployee.lastname) {
-        return res.status(400).json({ 'message': 'First and last names are required.' });
+    res.json(findState);
+}
+const getFunFact = (req, res) => {
+    const stateCode = req.params.state.toUpperCase();
+    const findState = data.states.find(state => state.code == stateCode);
+    if (!findState) {
+        return res.status(404).json({ 'message': 'State code does not exist.' });
+    } else if (findState.funfacts) {
+        res.status(201).json({ 'funfact': findState.funfacts[Math.floor((Math.random() * findState.funfacts.length))] });
+    } else {
+        res.status(201).json({ 'message': 'Funfact does not exist for queried state.' });
     }
- 
-    data.setEmployees([...data.employees, newEmployee]);
-    res.status(201).json(data.employees);
-} */
+}
+const createFunFact = async (req, res) => {
+    const { state } = req.params;
+    const { funfacts } = req.body;
+    const stateCode = state.toUpperCase();
+    if (!state) {
+        return res.status(400).json({ 'message': 'State abbreviation does not exist' });
+    }
+    if (!funfacts) {
+        return res.status(400).json({ 'message': 'Funfact for state is required.' });
+    }
+    if (!Array.isArray(funfacts)) {
+        return res.status(400).json({ 'message': 'Funfact must by of type array.' });
+    }
+    try {
+        if (!await states.findOneAndUpdate({ statecode: stateCode }, { $push: { 'funfacts': req.body.funfacts } })) {
+            await states.create({
+                statecode: stateCode,
+                funfacts: req.body.funfacts
+            });
+        }
+        const oneState = await states.findOne({ statecode: stateCode }).exec();
+        buildFunFacts();
+        res.status(201).json(oneState);
+    } catch (err) {
+        console.error(err);
+    }
+}
+const updateFunFact = async (req, res) => {
+    const { state } = req.params;
+    const { index, funfacts } = req.body;
+    const stateCode = state.toUpperCase();
+    if (!state) {
+        return res.status(400).json({ 'message': 'State abbreviation does not exist' });
+    }
+    if (!funfacts || !Array.isArray(funfacts)) {
+        return res.status(400).json({ 'message': 'Funfact for state is required and must be an array.' });
+    }
+    const oneState = await states.findOne({ statecode: stateCode }).exec();
+    const findState = data.states.find(state => state.code == stateCode);
+    let stateIndex = index;
+    if (!findState?.funfacts || stateIndex - 1 == 0) {
+        return res.status(400).json({ 'message': 'Funfact does not exist for queried state.' });
+    }
+    if (isNaN(stateIndex) || (stateIndex >= findState?.funfacts?.length ?? 0) || stateIndex < 0) {
+        return res.status(400).json({ 'message': 'Funfact does not exist for queried index.' });
+    }
+    stateIndex -= 1;
 
-/* const updateState = (req, res) => {
-    const state = data.states.find(state => emp.id === parseInt(req.body.id));
-    if (!employee) {
-        return res.status(400).json({ "message": `Employee ID ${req.body.id} not found` });
+    if (funfacts) {
+        findState.funfacts[stateIndex] = funfacts[0];
     }
-    if (req.body.firstname) employee.firstname = req.body.firstname;
-    if (req.body.lastname) employee.lastname = req.body.lastname;
-    const filteredArray = data.employees.filter(emp => emp.id !== parseInt(req.body.id));
-    const unsortedArray = [...filteredArray, employee];
-    data.setEmployees(unsortedArray.sort((a, b) => a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
-    res.json(data.employees);
+    const update = await oneState.save();
+    res.status(201).json(update);
 }
- 
-const deleteEmployee = (req, res) => {
-    const employee = data.employees.find(emp => emp.id === parseInt(req.body.id));
-    if (!employee) {
-        return res.status(400).json({ "message": `Employee ID ${req.body.id} not found` });
+const deleteFunFact = async (req, res) => {
+    const { state } = req.params;
+    const { index } = req.body;
+    const stateCode = state.toUpperCase();
+    if (!state) {
+        return res.status(400).json({ 'message': 'State abbreviation does not exist' });
     }
-    const filteredArray = data.employees.filter(emp => emp.id !== parseInt(req.body.id));
-    data.setEmployees([...filteredArray]);
-    res.json(data.employees);
+    if (!index) {
+        return res.status(400).json({ 'message': 'Index for state is required.' });
+    }
+    const oneState = await states.findOne({ statecode: stateCode }).exec();
+    const findState = data.states.find(state => state.code == stateCode);
+    let stateIndex = index;
+    if (!findState?.funfacts || stateIndex - 1 == 0) {
+        return res.status(400).json({ 'message': 'Funfact does not exist for queried state.' });
+    }
+    if (isNaN(stateIndex) || (stateIndex >= findState?.funfacts?.length ?? 0) || stateIndex < 1) {
+        return res.status(400).json({ 'message': 'Funfact does not exist for queried index.' });
+    }
+    stateIndex -= 1;
+    oneState.funfacts.splice(stateIndex, 1);
+    buildFunFacts();
+    const update = await oneState.save();
+    res.status(201).json(update);
 }
- 
-const getEmployee = (req, res) => {
-    const employee = data.employees.find(emp => emp.id === parseInt(req.params.id));
-    if (!employee) {
-        return res.status(400).json({ "message": `Employee ID ${req.params.id} not found` });
+const getCapital = (req, res) => {
+    const stateCode = req.params.state.toUpperCase();
+    const findState = data.states.find(state => state.code == stateCode);
+    if (!findState) {
+        return res.status(404).json({ 'message': 'State code does not exist.' });
     }
-    res.json(employee);
-} */
+    res.join({ "state": findState.state, "capital": findState.capital_city });
+}
+const getNickname = (req, res) => {
+    const stateCode = req.params.state.toUpperCase();
+    const findState = data.states.find(state => state.code == stateCode);
+    if (!findState) {
+        return res.status(404).json({ 'message': 'State code does not exist.' });
+    }
+    res.join({ "state": findState.state, "nickname": findState.nickname });
+}
+const getPopulation = (req, res) => {
+    const stateCode = req.params.state.toUpperCase();
+    const findState = data.states.find(state => state.code == stateCode);
+    if (!findState) {
+        return res.status(404).json({ 'message': 'State code does not exist.' });
+    }
+    res.join({ "state": findState.state, "population": findState.population });
+}
+const getAdmission = (req, res) => {
+    const stateCode = req.params.state.toUpperCase();
+    const findState = data.states.find(state => state.code == stateCode);
+    if (!findState) {
+        return res.status(404).json({ 'message': 'State code does not exist.' });
+    }
+    res.join({ "state": findState.state, "admission date": findState.admission_date });
+}
 
 module.exports = {
-    getAllStates/* ,
+    getAllStates,
+    getState,
     createFunFact,
     updateFunFact,
     deleteFunFact,
-    getState,
+    getFunFact,
     getCapital,
     getNickname,
     getPopulation,
-    getAdmission */
+    getAdmission
 }
