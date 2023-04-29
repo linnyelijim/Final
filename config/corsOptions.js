@@ -2,7 +2,8 @@ const whitelist = [
     'https://final-inf653.glitch.me',
     'http://127.0.0.1:5500',
     'http://localhost:3000',
-    'https://dazzling-snickerdoodle-777101.netlify.app'
+    'https://dazzling-snickerdoodle-777101.netlify.app',
+    'https://www.thunderclient.com'
 ];
 const corsOptions = {
     origin: (origin, callback) => {
