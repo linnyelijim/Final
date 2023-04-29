@@ -1,2 +1,13 @@
 20230428	19:34:52	02decbf3-628e-4842-b388-d4cb66b1f070	GET	undefined	/
 20230428	19:35:27	6b7b2bf2-3f0e-4bea-9209-cf852de94322	GET	undefined	/:state
+20230428	20:24:14	60be11bd-25a7-47eb-8337-152159dbcf51	GET	undefined	/states
+20230428	20:24:25	6cfe59b0-466b-4435-83aa-1dc7b41a6e9d	GET	undefined	/
+20230428	20:24:36	fae685a5-6895-422f-afba-292af4afd286	GET	undefined	/states/al/funfact
+20230428	20:24:46	0a166e37-8c2e-427c-aaf0-158a21efcb99	GET	undefined	/states/mo/funfact
+20230428	20:24:50	779addc5-b0b2-433e-a355-113049e39fb2	GET	undefined	/states/ar/funfact
+20230428	20:24:52	b29071bf-12c7-4923-ba76-7b5011097825	GET	undefined	/states/hi/funfact
+20230428	20:25:01	633f994f-c02a-4cb3-be79-ccf4dc1e180e	GET	undefined	/states/funfact
+20230428	20:25:07	488d7cae-07c0-487b-a749-61d8fdfe924a	GET	undefined	/states
+20230428	20:28:29	4e009676-0a01-4f06-a826-4c15733dc1ca	POST	undefined	/states
+20230428	20:29:45	3ca5996d-5129-40a0-8bbe-7d56d6dfbe8d	POST	undefined	/states
+20230428	20:31:47	83481508-e069-416a-8262-2b5acfdf19e2	POST	undefined	/states

@@ -1,4 +1,4 @@
-const states = require('../model/states');
+const states = require("../model/States");
 const data = {
     states: require('../model/statesData.json'),
     setData(data) { this.states = data }
