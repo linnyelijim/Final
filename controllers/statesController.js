@@ -1,8 +1,7 @@
 const states = require("../model/States");
-const path = require("path");
 const data = {
     stateData: require("../model/statesData.json"),
-    setData: function (data) { this.states = data }
+    setData: function (data) { this.stateData = data }
 }
 async function buildFunFacts() {
     const retrieveStates = data.stateData;
@@ -13,21 +12,15 @@ async function buildFunFacts() {
         }
     }
 }
+buildFunFacts();
 const getAllStates = async (req, res) => {
-    const { state } = req.params;
-    const stateCode = state.toUpperCase();
     const findState = data.stateData;
-    const fact = await states.findOne({ stateCode: stateCode }, "funfacts").exec();
     if (req.query.contig) {
         const getAll = req.query.contig == "false" ?
             data.stateData.filter(state => state.code != "HI" || state.code != "AK") :
             data.stateData.filter(state => state.code != "HI" && state.code != "AK");
         res.status(200).json(getAll);
         return;
-    }
-    if (fact) {
-        findState.funfacts = [];
-        findState.funfacts = findState.funfacts.concat(fact.funfacts);
     }
     res.status(200).json(findState);
 }
@@ -62,7 +55,7 @@ const getStateProperties = async (req, res) => {
             return res.status(200).json({ "state": findState.state, "nickname": findState.nickname });
             break;
         case "population":
-            return res.status(200).json({ "state": findState.state, "population": findState.population });
+            return res.status(200).json({ "state": findState.state, "population": findState.population.toLocaleString("en-US") });
             break;
         case "admission":
             return res.status(200).json({ "state": findState.state, "admission": findState.admission_date });
