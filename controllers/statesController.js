@@ -1,4 +1,5 @@
 const states = require("../model/States");
+const path = require("path");
 const data = {
     stateData: require("../model/statesData.json"),
     setData: function (data) { this.stateData = data }
@@ -60,16 +61,16 @@ const getStateProperties = async (req, res) => {
         case "admission":
             return res.status(200).json({ "state": findState.state, "admission": findState.admission_date });
             break;
-        case "funfact":
+        case "funfacts":
             if (fact) {
-                return res.status(200).json({ "funfact": fact.funfacts[Math.floor(Math.random() * fact.funfacts.length)] });
+                return res.status(200).json({ "funfacts": fact.funfacts[Math.floor(Math.random() * fact.funfacts.length)] });
             } else {
                 return res.status(404).json({ "message": `No Fun Facts found for ${findState.state}` });
             }
             break;
         default:
             res.status(404);
-            if (accepts("html")) {
+            if (req.accepts("html")) {
                 res.sendFile(path.join(__dirname, "..", "views", "404.html"));
             }
     }
@@ -77,16 +78,16 @@ const getStateProperties = async (req, res) => {
 const createFunFact = async (req, res) => {
     const { state } = req.params;
     const { funfacts } = req.body;
-    const stateCode = state.toUpperCase();
-    if (!state) {
+    if (!req?.params?.state) {
         return res.status(400).json({ "message": "Invalid state abbreviation parameter" });
     }
-    if (!funfacts) {
-        return res.status(400).json({ "message": "Funfact for state is required." });
+    if (!req?.body?.funfacts) {
+        return res.status(400).json({ "message": "State fun fact value is required." });
     }
     if (!Array.isArray(funfacts)) {
-        return res.status(400).json({ "message": "Funfact must by of type array." });
+        return res.status(400).json({ "message": "State fun fact value must an array." });
     }
+    const stateCode = state.toUpperCase();
     try {
         if (!await states.findOneAndUpdate({ stateCode: stateCode }, { $push: { "funfacts": funfacts } })) {
             await states.create({
@@ -95,38 +96,47 @@ const createFunFact = async (req, res) => {
             });
         }
         const oneState = await states.findOne({ stateCode: stateCode }).exec();
-        buildFunFacts();
         res.status(200).json(oneState);
     } catch (err) {
         console.error(err);
     }
+    buildFunFacts();
 }
 const updateFunFact = async (req, res) => {
     const { state } = req.params;
     const { index, funfacts } = req.body;
-    const stateCode = state.toUpperCase();
-    if (!state) {
+    if (!req?.params?.state) {
         return res.status(400).json({ "message": "Invalid state abbreviation parameter" });
     }
-    if (!funfacts || !Array.isArray(funfacts)) {
-        return res.status(400).json({ "message": "Funfact for state is required and must be an array." });
+    if (!req?.body?.index) {
+        return res.status(400).json({ "message": "State fun fact index value required" });
     }
+    if (!req?.body?.funfacts) {
+        return res.status(400).json({ "message": "State fun fact value required" });
+    }
+    if (!Array.isArray(funfacts)) {
+        return res.status(400).json({ "message": "State fun fact value must be an array" });
+    }
+    const stateCode = state.toUpperCase();
     const oneState = await states.findOne({ stateCode: stateCode }).exec();
     const findState = data.stateData.find(state => state.code == stateCode);
     let stateIndex = index;
-    if (!findState?.funfacts || stateIndex - 1 == 0) {
-        return res.status(400).json({ "message": "Funfact does not exist for queried state." });
+    if (!findState.funfacts || stateIndex - 1 == 0) {
+        return res.status(400).json({ "message": `No Fun Facts found for ${findState.state}` });
     }
-    if (isNaN(stateIndex) || (stateIndex >= findState?.funfacts?.length ?? 0) || stateIndex < 0) {
-        return res.status(400).json({ "message": "Funfact does not exist for queried index." });
+    if (!stateIndex || stateIndex > oneState.funfacts.length || stateIndex < 1) {
+        const oneState = data.stateData.find(state => state.code == stateCode);
+        return res.status(400).json({ "message": `No Fun Facts found for ${findState.state}` });
     }
     stateIndex -= 1;
 
     if (funfacts) {
-        findState.funfacts[stateIndex] = funfacts[0];
+        oneState.funfacts[stateIndex] = funfacts[0];
     }
     const update = await oneState.save();
+    buildFunFacts();
     res.status(200).json(update);
+
 }
 const deleteFunFact = async (req, res) => {
     const { state } = req.params;
@@ -136,22 +146,23 @@ const deleteFunFact = async (req, res) => {
         return res.status(400).json({ "message": "Invalid state abbreviation parameter" });
     }
     if (!index) {
-        return res.status(400).json({ "message": "Index for state is required." });
+        return res.status(400).json({ "message": "State fun fact index value required" });
     }
     const oneState = await states.findOne({ stateCode: stateCode }).exec();
     const findState = data.stateData.find(state => state.code == stateCode);
     let stateIndex = index;
-    if (!findState?.funfacts || stateIndex - 1 == 0) {
-        return res.status(400).json({ "message": "Funfact does not exist for queried state." });
+    if (!findState.funfacts || stateIndex - 1 == 0) {
+        return res.status(400).json({ "message": `No Fun Facts found for ${findState.state}` });
     }
-    if (isNaN(stateIndex) || (stateIndex >= findState?.funfacts?.length ?? 0) || stateIndex < 1) {
-        return res.status(400).json({ "message": "Funfact does not exist for queried index." });
+    if (!stateIndex || stateIndex > oneState.funfacts.length || stateIndex < 1) {
+        const oneState = findState;
+        return res.status(400).json({ "message": `No Fun Facts found at the index for ${findState.state}` });
     }
     stateIndex -= 1;
     oneState.funfacts.splice(stateIndex, 1);
-    buildFunFacts();
     const update = await oneState.save();
     res.status(200).json(update);
+    buildFunFacts();
 }
 
 module.exports = {

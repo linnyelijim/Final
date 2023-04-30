@@ -7,9 +7,7 @@ const statesSchema = new Schema({
         required: true,
         unique: true
     },
-    funfacts: {
-        type: Array
-    }
+    funfacts: [String]
 });
 
 module.exports = mongoose.model('State', statesSchema);
