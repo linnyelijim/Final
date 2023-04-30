@@ -5,23 +5,28 @@ const data = {
     setData: function (data) { this.stateData = data }
 }
 async function buildFunFacts() {
-    const retrieveStates = data.stateData;
-    for (const state in retrieveStates) {
-        const findState = await states.findOne({ stateCode: retrieveStates[state].code }).exec();
-        if (findState) {
-            retrieveStates[state].funfacts = findState.funfacts;
-        }
+    const stateCodes = data.stateData.map((state) => state.code);
+    const promise = stateCodes.map((code) => states.findOne({ stateCode: code }).exec());
+    const findStates = await Promise.all(promise);
+
+    for (const [index, findState] of findStates.entries()) {
+        data.stateData[index].funfacts = findState?.funfacts;
     }
 }
 buildFunFacts();
 const getAllStates = async (req, res) => {
     const findState = data.stateData;
-    if (req.query.contig) {
-        const getAll = req.query.contig == "false" ?
-            data.stateData.filter(state => state.code != "HI" || state.code != "AK") :
-            data.stateData.filter(state => state.code != "HI" && state.code != "AK");
-        res.status(200).json(getAll);
-        return;
+    if (req.query) {
+        if (req.query.contig) {
+            const getAll =
+                req.query.contig == 'false'
+                    ? data.stateData.filter(state => state.code == "HI" || state.code == "AK")
+                    : req.query.contig == 'true'
+                        ? data.stateData.filter(state => state.code != "HI" && state.code != "AK")
+                        : res.status(404);
+            res.json(getAll);
+            return;
+        }
     }
     res.status(200).json(findState);
 }
@@ -59,7 +64,7 @@ const getStateProperties = async (req, res) => {
             return res.status(200).json({ "state": findState.state, "population": findState.population.toLocaleString("en-US") });
             break;
         case "admission":
-            return res.status(200).json({ "state": findState.state, "admission": findState.admission_date });
+            return res.status(200).json({ "state": findState.state, "admitted": findState.admission_date });
             break;
         case "funfact":
             if (fact) {
@@ -82,10 +87,10 @@ const createFunFact = async (req, res) => {
         return res.status(400).json({ "message": "Invalid state abbreviation parameter" });
     }
     if (!req?.body?.funfacts) {
-        return res.status(400).json({ "message": "State fun fact value is required." });
+        return res.status(400).json({ "message": "State fun facts value required" });
     }
     if (!Array.isArray(funfacts)) {
-        return res.status(400).json({ "message": "State fun fact value must an array." });
+        return res.status(400).json({ "message": "State fun facts value must be an array" });
     }
     const stateCode = state.toUpperCase();
     try {
@@ -126,9 +131,9 @@ const updateFunFact = async (req, res) => {
     }
     if (!stateIndex || stateIndex > oneState.funfacts.length || stateIndex < 1) {
         const oneState = data.stateData.find(state => state.code == stateCode);
-        return res.status(400).json({ "message": `No Fun Facts found for ${findState.state}` });
+        return res.status(400).json({ "message": `No Fun Fact found at that index for ${findState.state}` });
     }
-    stateIndex -= 1;
+    stateIndex = parseInt(stateIndex);
 
     if (funfacts) {
         oneState.funfacts[stateIndex] = funfacts[0];
@@ -156,9 +161,9 @@ const deleteFunFact = async (req, res) => {
     }
     if (!stateIndex || stateIndex > oneState.funfacts.length || stateIndex < 1) {
         const oneState = findState;
-        return res.status(400).json({ "message": `No Fun Facts found at the index for ${findState.state}` });
+        return res.status(400).json({ "message": `No Fun Fact found at that index for ${findState.state}` });
     }
-    stateIndex -= 1;
+    stateIndex = parseInt(stateIndex);
     oneState.funfacts.splice(stateIndex, 1);
     const update = await oneState.save();
     res.status(200).json(update);

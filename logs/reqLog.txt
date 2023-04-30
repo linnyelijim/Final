@@ -124,3 +124,12 @@
 20230429	22:02:48	5fa034b8-2ed4-4e7d-8303-4ea65434c6d1	POST	undefined	/states/ne/funfact
 20230429	22:03:31	09187488-3b07-49f4-ab4f-38920833eddb	POST	undefined	/states/ne/funfact
 20230429	22:04:52	5c5f0e3f-b2d6-48ca-8fb1-39f1ea62e5ff	POST	undefined	/states/co/funfact
+20230430	18:01:32	99334305-67c9-4ec6-ba7a-de90ec0fc5a7	GET	undefined	/states/?contig=false
+20230430	18:04:50	c1d62d93-7e47-4cc9-8aa1-958a6bd32807	GET	undefined	/states/?contig=false
+20230430	18:07:05	d8108103-89b9-4e93-ad0b-f2c40d85fa54	GET	undefined	/states/?contig=false
+20230430	18:07:06	f26cbc3a-e73d-4ccd-88db-25045c7882af	GET	undefined	/states/?contig=false
+20230430	18:13:54	cc6c41a3-e1a7-4a69-a293-dfe59a6120d9	GET	undefined	/states/?contig=false
+20230430	18:14:02	014d32b6-4654-40e9-94a3-1340d0cabeff	GET	undefined	/states/?contig=false
+20230430	18:30:48	6476e05d-96a8-40d7-bea0-e765b609bafb	GET	undefined	/states/ny/admission
+20230430	18:33:12	92f82707-1ebb-4811-ba7c-60232dc21d18	GET	undefined	/states/ny/funfact
+20230430	18:37:30	8cdf469a-efae-4e15-b2cb-1685dfe5c5d8	GET	undefined	/states/ny/funfact
