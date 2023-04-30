@@ -61,9 +61,9 @@ const getStateProperties = async (req, res) => {
         case "admission":
             return res.status(200).json({ "state": findState.state, "admission": findState.admission_date });
             break;
-        case "funfacts":
+        case "funfact":
             if (fact) {
-                return res.status(200).json({ "funfacts": fact.funfacts[Math.floor(Math.random() * fact.funfacts.length)] });
+                return res.status(200).json({ "funfact": fact.funfacts[Math.floor(Math.random() * fact.funfacts.length)] });
             } else {
                 return res.status(404).json({ "message": `No Fun Facts found for ${findState.state}` });
             }

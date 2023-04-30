@@ -111,3 +111,16 @@
 20230429	21:46:30	997ab403-08e1-4661-85c4-b02ce0159b3d	PATCH	undefined	/states/ks/funfact
 20230429	21:46:46	7641f0d0-23bf-43d1-a233-3ca211d3f0a4	PATCH	undefined	/states/ks/funfact
 20230429	21:47:07	56d758f7-8e23-4843-ac33-7c636141e8bb	DELETE	undefined	/states/ks/funfact
+20230429	21:54:45	7ebe02ca-bf42-481c-b53d-513b8c2b6f8b	POST	undefined	/states/mo/funfact
+20230429	21:54:56	81f713a9-4b5d-4ca0-bc3e-90eaf0396f89	GET	undefined	/states/mo/funfact
+20230429	21:55:09	a18f4815-7eab-48da-9166-7bd75c6402a0	GET	undefined	/states/mo/
+20230429	21:55:33	02fd383e-45f3-489e-8905-1be514661721	GET	undefined	/states/mo/funfacts
+20230429	21:55:36	5dc3089a-f822-4da7-b326-e1fa185fb6cc	GET	undefined	/states/mo/funfacts
+20230429	21:55:38	7593eba6-4c12-4791-96f3-0fd34b3b0f26	GET	undefined	/states/mo/funfacts
+20230429	21:55:39	db63e1d3-c86b-4bb5-8579-e9293bc3fb49	GET	undefined	/states/mo/funfacts
+20230429	21:55:43	6f694d1c-c3d5-4aeb-be37-06ad4ba6f349	GET	undefined	/states/mo/funfact
+20230429	21:56:30	9c2b9398-d454-4230-a5b5-7bdfbf912089	GET	undefined	/states/mo/funfact
+20230429	21:58:36	3207a893-4c24-47c2-a066-8c01ccae7ed9	POST	undefined	/states/ok/funfact
+20230429	22:02:48	5fa034b8-2ed4-4e7d-8303-4ea65434c6d1	POST	undefined	/states/ne/funfact
+20230429	22:03:31	09187488-3b07-49f4-ab4f-38920833eddb	POST	undefined	/states/ne/funfact
+20230429	22:04:52	5c5f0e3f-b2d6-48ca-8fb1-39f1ea62e5ff	POST	undefined	/states/co/funfact
