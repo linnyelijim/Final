@@ -133,3 +133,5 @@
 20230430	18:30:48	6476e05d-96a8-40d7-bea0-e765b609bafb	GET	undefined	/states/ny/admission
 20230430	18:33:12	92f82707-1ebb-4811-ba7c-60232dc21d18	GET	undefined	/states/ny/funfact
 20230430	18:37:30	8cdf469a-efae-4e15-b2cb-1685dfe5c5d8	GET	undefined	/states/ny/funfact
+20230430	20:09:23	5bb79c8b-bf69-4e6b-8f20-08036bea97bd	GET	undefined	/states/az/funfact
+20230430	20:10:13	1b3a3af8-048d-43eb-b713-ab5e34814393	PATCH	undefined	/states/az/funfact

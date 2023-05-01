@@ -4,16 +4,19 @@ const data = {
     stateData: require("../model/statesData.json"),
     setData: function (data) { this.stateData = data }
 }
+
 async function buildFunFacts() {
     const stateCodes = data.stateData.map((state) => state.code);
-    const promise = stateCodes.map((code) => states.findOne({ stateCode: code }).exec());
-    const findStates = await Promise.all(promise);
-
-    for (const [index, findState] of findStates.entries()) {
-        data.stateData[index].funfacts = findState?.funfacts;
+    for (let i = 0; i < stateCodes.length; i++) {
+        const code = stateCodes[i];
+        const findState = await states.findOne({ stateCode: code }).exec();
+        if (findState) {
+            data.stateData[i].funfacts = findState?.funfacts;
+        }
     }
 }
 buildFunFacts();
+
 const getAllStates = async (req, res) => {
     const findState = data.stateData;
     if (req.query) {
@@ -109,40 +112,36 @@ const createFunFact = async (req, res) => {
 }
 const updateFunFact = async (req, res) => {
     const { state } = req.params;
-    const { index, funfacts } = req.body;
-    if (!req?.params?.state) {
+    const { index, funfact } = req.body;
+    if (!state) {
         return res.status(400).json({ "message": "Invalid state abbreviation parameter" });
     }
-    if (!req?.body?.index) {
+    if (!index) {
         return res.status(400).json({ "message": "State fun fact index value required" });
     }
-    if (!req?.body?.funfacts) {
+    if (!funfact) {
         return res.status(400).json({ "message": "State fun fact value required" });
     }
-    if (!Array.isArray(funfacts)) {
-        return res.status(400).json({ "message": "State fun fact value must be an array" });
-    }
+
     const stateCode = state.toUpperCase();
     const oneState = await states.findOne({ stateCode: stateCode }).exec();
     const findState = data.stateData.find(state => state.code == stateCode);
     let stateIndex = index;
-    if (!findState.funfacts || stateIndex - 1 == 0) {
+    if (!findState || !findState.funfacts || stateIndex <= 0) {
         return res.status(400).json({ "message": `No Fun Facts found for ${findState.state}` });
     }
     if (!stateIndex || stateIndex > oneState.funfacts.length || stateIndex < 1) {
-        const oneState = data.stateData.find(state => state.code == stateCode);
         return res.status(400).json({ "message": `No Fun Fact found at that index for ${findState.state}` });
     }
-    stateIndex = parseInt(stateIndex);
-
-    if (funfacts) {
-        oneState.funfacts[stateIndex] = funfacts[0];
+    stateIndex -= 1;
+    if (funfact) {
+        oneState.funfacts[stateIndex] = funfact;
     }
     const update = await oneState.save();
     buildFunFacts();
     res.status(200).json(update);
-
 }
+
 const deleteFunFact = async (req, res) => {
     const { state } = req.params;
     const { index } = req.body;
@@ -156,18 +155,17 @@ const deleteFunFact = async (req, res) => {
     const oneState = await states.findOne({ stateCode: stateCode }).exec();
     const findState = data.stateData.find(state => state.code == stateCode);
     let stateIndex = index;
-    if (!findState.funfacts || stateIndex - 1 == 0) {
+    if (!oneState || !oneState.funfacts || stateIndex <= 0) {
         return res.status(400).json({ "message": `No Fun Facts found for ${findState.state}` });
     }
-    if (!stateIndex || stateIndex > oneState.funfacts.length || stateIndex < 1) {
-        const oneState = findState;
+    if (!stateIndex || stateIndex > findState.funfacts.length || stateIndex < 1) {
         return res.status(400).json({ "message": `No Fun Fact found at that index for ${findState.state}` });
     }
-    stateIndex = parseInt(stateIndex);
+    stateIndex -= 1;
     oneState.funfacts.splice(stateIndex, 1);
     const update = await oneState.save();
-    res.status(200).json(update);
     buildFunFacts();
+    res.status(200).json(update);
 }
 
 module.exports = {
@@ -176,5 +174,5 @@ module.exports = {
     getStateProperties,
     createFunFact,
     updateFunFact,
-    deleteFunFact,
+    deleteFunFact
 }
