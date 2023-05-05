@@ -94,13 +94,13 @@ const createFunFact = async (req, res) => {     //creates new funfact for state,
     }
 
     try {                                      //if requested state doesn't have funfact array, create one, add funfact
-        if (!await states.findOneAndUpdate({ stateCode: stateCode }, { $push: { "funfacts": funfacts } })) {
+        if (!await states.findOneAndUpdate({ stateCode: stateCode }, { $push: { "funfacts": funfacts } })) {   //if funfacts exists, add funfact
             await states.create({
                 stateCode: stateCode,
                 funfacts: funfacts
             });
         }
-        const oneState = await states.findOne({ stateCode: stateCode }).exec();     //if funfacts exists, add funfact
+        const oneState = await states.findOne({ stateCode: stateCode }).exec();     //find the state code and resolve promise
         res.status(200).json(oneState);                                             //sends oneState as json object
     } catch (err) {
         console.error(err);                                                         //if error, log
